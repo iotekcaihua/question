@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:c="http://www.springframework.org/schema/c"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+	   http://www.springframework.org/schema/context
+	    http://www.springframework.org/schema/context/spring-context-4.2.xsd
+	    http://www.alibaba.com/schema/stat http://www.alibaba.com/schema/stat.xsd
+	     http://www.springframework.org/schema/mvc
+	     http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+    <context:property-placeholder location="classpath:springConfigure/dataSource.properties"/>
+    <context:component-scan base-package="com.caihua.*"/>
+    <mvc:annotation-driven/>
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass">
+            <value>${jdbc.driver}</value>
+        </property>
+        <property name="jdbcUrl">
+            <value>${jdbc.url}</value>
+        </property>
+        <property name="user">
+            <value>${jdbc.user}</value>
+        </property>
+        <property name="password">
+            <value>${jdbc.password}</value>
+        </property>
+    </bean>
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="mapperLocations" value="classpath:mapper/*.xml"/>
+        <property name="typeAliasesPackage" value="com.caihua.bean"/>
+    </bean>
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+        <property name="basePackage" value="com.caihua.mapper"/>
+    </bean>
+    <bean id="transaction" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/"></property>
+        <property name="suffix" value=".jsp"></property>
+    </bean>
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <bean class="com.caihua.inceptor.LoingInceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
+</beans>
